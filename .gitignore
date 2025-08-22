@@ -1,1 +1,252 @@
-/build/
+// Archivo: src/main/java/com/calculoimpuestos/Main.java
+package com.calculoimpuestos;
+
+import com.calculoimpuestos.controlador.ControladorImpuestos;
+import com.calculoimpuestos.modelo.CalculadoraImpuestos;
+import com.calculoimpuestos.vista.VistaImpuestos;
+
+/**
+ * Clase principal que inicia la aplicación y conecta los componentes MVC.
+ */
+public class Main {
+    public static void main(String[] args) {
+        // Instancia los componentes del Modelo, la Vista y el Controlador
+        VistaImpuestos vista = new VistaImpuestos();
+        CalculadoraImpuestos calculadora = new CalculadoraImpuestos();
+        
+        // El Controlador une la Vista y el Modelo, manejando la lógica de interacción
+        ControladorImpuestos controlador = new ControladorImpuestos(vista, calculadora);
+        
+        // Hace visible la interfaz de usuario
+        vista.setVisible(true);
+    }
+}
+
+
+// Archivo: src/main/java/com/calculoimpuestos/modelo/Vehiculo.java
+package com.calculoimpuestos.modelo;
+
+/**
+ * Clase del Modelo que representa un vehículo y sus atributos.
+ */
+public class Vehiculo {
+    private String marca;
+    private String modelo;
+    private int anioFabricacion;
+    private int cilindraje;
+    private double avaluoComercial;
+    private String tipoUso;
+
+    public Vehiculo(String marca, String modelo, int anioFabricacion, int cilindraje, double avaluoComercial, String tipoUso) {
+        this.marca = marca;
+        this.modelo = modelo;
+        this.anioFabricacion = anioFabricacion;
+        this.cilindraje = cilindraje;
+        this.avaluoComercial = avaluoComercial;
+        this.tipoUso = tipoUso;
+    }
+
+    // Getters para acceder a los atributos del vehículo
+    public double getAvaluoComercial() {
+        return avaluoComercial;
+    }
+
+    public int getAnioFabricacion() {
+        return anioFabricacion;
+    }
+
+    public int getCilindraje() {
+        return cilindraje;
+    }
+
+    public String getTipoUso() {
+        return tipoUso;
+    }
+}
+
+
+// Archivo: src/main/java/com/calculoimpuestos/modelo/CalculadoraImpuestos.java
+package com.calculoimpuestos.modelo;
+
+/**
+ * Clase del Modelo que contiene la lógica de negocio para calcular el impuesto.
+ */
+public class CalculadoraImpuestos {
+    
+    /**
+     * Calcula el impuesto del vehículo basado en su avalúo comercial.
+     * Esta es una lógica simplificada para el ejemplo.
+     * En una implementación real, las tarifas podrían venir de una base de datos.
+     * * @param vehiculo El objeto Vehiculo con sus datos.
+     * @return El valor del impuesto calculado.
+     */
+    public double calcularImpuesto(Vehiculo vehiculo) {
+        double avaluo = vehiculo.getAvaluoComercial();
+        double impuesto = 0.0;
+        
+        // Ejemplo de cálculo de impuesto basado en el avalúo comercial
+        if (avaluo < 30000000) {
+            impuesto = avaluo * 0.015; // 1.5%
+        } else if (avaluo >= 30000000 && avaluo < 50000000) {
+            impuesto = avaluo * 0.025; // 2.5%
+        } else {
+            impuesto = avaluo * 0.035; // 3.5%
+        }
+        
+        // Se puede agregar lógica adicional para antigüedad, cilindraje, etc.
+        if (vehiculo.getAnioFabricacion() < 2015) {
+            impuesto -= impuesto * 0.10; // Descuento por antigüedad
+        }
+
+        if ("publico".equalsIgnoreCase(vehiculo.getTipoUso())) {
+             impuesto -= impuesto * 0.05; // Descuento por tipo de uso
+        }
+        
+        return impuesto;
+    }
+}
+
+
+// Archivo: src/main/java/com/calculoimpuestos/vista/VistaImpuestos.java
+package com.calculoimpuestos.vista;
+
+import javax.swing.*;
+import java.awt.Font;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import javax.swing.border.EmptyBorder;
+
+/**
+ * Clase de la Vista que crea y maneja la interfaz de usuario.
+ */
+public class VistaImpuestos extends JFrame {
+    
+    // Componentes de la interfaz pública para que el controlador pueda acceder a ellos
+    public JTextField txtMarca;
+    public JTextField txtModelo;
+    public JTextField txtAnio;
+    public JTextField txtCilindraje;
+    public JTextField txtAvaluo;
+    public JComboBox<String> comboTipoUso;
+    public JButton btnCalcular;
+    public JLabel lblResultado;
+
+    public VistaImpuestos() {
+        // Configuración de la ventana principal
+        setTitle("Calculadora de Impuestos de Vehículos");
+        setSize(400, 500);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null); // Centra la ventana en la pantalla
+
+        // Panel principal con un diseño de caja para organizar los elementos verticalmente
+        JPanel panelPrincipal = new JPanel();
+        panelPrincipal.setLayout(new BoxLayout(panelPrincipal, BoxLayout.Y_AXIS));
+        panelPrincipal.setBorder(new EmptyBorder(20, 20, 20, 20));
+        panelPrincipal.setBackground(new Color(240, 248, 255)); // Color de fondo claro
+        add(panelPrincipal);
+
+        // Título
+        JLabel titulo = new JLabel("Cálculo de Impuestos", SwingConstants.CENTER);
+        titulo.setFont(new Font("Arial", Font.BOLD, 24));
+        titulo.setForeground(new Color(44, 62, 80));
+        titulo.setAlignmentX(CENTER_ALIGNMENT);
+        panelPrincipal.add(titulo);
+        panelPrincipal.add(Box.createVerticalStrut(20));
+
+        // Paneles para cada campo de entrada para un mejor control del diseño
+        panelPrincipal.add(crearPanelCampo("Marca:", txtMarca = new JTextField(20)));
+        panelPrincipal.add(crearPanelCampo("Modelo:", txtModelo = new JTextField(20)));
+        panelPrincipal.add(crearPanelCampo("Año de Fabricación:", txtAnio = new JTextField(20)));
+        panelPrincipal.add(crearPanelCampo("Cilindraje (cc):", txtCilindraje = new JTextField(20)));
+        panelPrincipal.add(crearPanelCampo("Avalúo Comercial:", txtAvaluo = new JTextField(20)));
+        
+        // Combobox para tipo de uso
+        String[] tiposUso = {"Particular", "Público"};
+        comboTipoUso = new JComboBox<>(tiposUso);
+        panelPrincipal.add(crearPanelCampo("Tipo de Uso:", comboTipoUso));
+
+        // Botón Calcular
+        btnCalcular = new JButton("Calcular Impuesto");
+        btnCalcular.setFont(new Font("Arial", Font.BOLD, 14));
+        btnCalcular.setBackground(new Color(52, 152, 219));
+        btnCalcular.setForeground(Color.WHITE);
+        btnCalcular.setAlignmentX(CENTER_ALIGNMENT);
+        panelPrincipal.add(Box.createVerticalStrut(20));
+        panelPrincipal.add(btnCalcular);
+
+        // Etiqueta para mostrar el resultado
+        lblResultado = new JLabel("Impuesto a pagar: $0.00", SwingConstants.CENTER);
+        lblResultado.setFont(new Font("Arial", Font.BOLD, 18));
+        lblResultado.setForeground(new Color(39, 174, 96));
+        lblResultado.setAlignmentX(CENTER_ALIGNMENT);
+        panelPrincipal.add(Box.createVerticalStrut(20));
+        panelPrincipal.add(lblResultado);
+    }
+    
+    // Método auxiliar para crear paneles de campo de forma consistente
+    private JPanel crearPanelCampo(String etiqueta, JComponent componente) {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        panel.setBackground(new Color(240, 248, 255));
+        JLabel lbl = new JLabel(etiqueta);
+        lbl.setFont(new Font("Arial", Font.PLAIN, 14));
+        panel.add(lbl);
+        panel.add(componente);
+        return panel;
+    }
+}
+
+
+// Archivo: src/main/java/com/calculoimpuestos/controlador/ControladorImpuestos.java
+package com.calculoimpuestos.controlador;
+
+import com.calculoimpuestos.modelo.CalculadoraImpuestos;
+import com.calculoimpuestos.modelo.Vehiculo;
+import com.calculoimpuestos.vista.VistaImpuestos;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JOptionPane;
+
+/**
+ * Clase del Controlador que maneja la interacción entre la Vista y el Modelo.
+ */
+public class ControladorImpuestos implements ActionListener {
+    
+    private VistaImpuestos vista;
+    private CalculadoraImpuestos calculadora;
+
+    public ControladorImpuestos(VistaImpuestos vista, CalculadoraImpuestos calculadora) {
+        this.vista = vista;
+        this.calculadora = calculadora;
+        // Asigna este controlador como el listener del botón de la vista
+        this.vista.btnCalcular.addActionListener(this);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // Verifica si el evento proviene del botón de cálculo
+        if (e.getSource() == vista.btnCalcular) {
+            try {
+                // 1. Obtiene los datos ingresados por el usuario desde la Vista
+                String marca = vista.txtMarca.getText();
+                String modelo = vista.txtModelo.getText();
+                int anio = Integer.parseInt(vista.txtAnio.getText());
+                int cilindraje = Integer.parseInt(vista.txtCilindraje.getText());
+                double avaluo = Double.parseDouble(vista.txtAvaluo.getText());
+                String tipoUso = (String) vista.comboTipoUso.getSelectedItem();
+
+                // 2. Crea un objeto Vehiculo (del Modelo) con los datos obtenidos
+                Vehiculo vehiculo = new Vehiculo(marca, modelo, anio, cilindraje, avaluo, tipoUso);
+
+                // 3. Llama al método del Modelo para realizar el cálculo del impuesto
+                double impuestoCalculado = calculadora.calcularImpuesto(vehiculo);
+
+                // 4. Muestra el resultado en la Vista
+                vista.lblResultado.setText("Impuesto a pagar: $" + String.format("%,.2f", impuestoCalculado));
+
+            } catch (NumberFormatException ex) {
+                // Manejo de errores si el usuario ingresa texto en campos numéricos
+                JOptionPane.showMessageDialog(vista, "Por favor, ingrese valores numéricos válidos.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+}
